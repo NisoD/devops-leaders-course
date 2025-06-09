@@ -1,5 +1,17 @@
 fastapi
+pip-audit
+bandit
+safety
 uvicorn
 requests
 jinja2
 python-dotenv
+pytest
+httpx
+pytest-asyncio
+pytest-mock
+requests-mock
+black
+isort
+flake8
+

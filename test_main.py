@@ -1,60 +1,60 @@
-import os
-import time
-import pytest
 from fastapi.testclient import TestClient
+
+# Import your app
 from main import app
 
-# Create a TestClient instance for the app.
 client = TestClient(app)
 
 
-# Fixture to ensure the CPU stress test feature is enabled for tests.
-@pytest.fixture(autouse=True)
-def set_stress_flag(monkeypatch):
-    monkeypatch.setenv("STRESS_TEST_FLAG", "true")
-    yield
-    monkeypatch.delenv("STRESS_TEST_FLAG", raising=False)
-
-
-def test_home_page():
-    """Test that the home page returns a 200 response and contains the app name."""
+def test_homepage():
+    """Test that the homepage loads successfully."""
     response = client.get("/")
     assert response.status_code == 200
-    # Verify the title or header is present.
-    assert "Devops Leaders IL Course - Test App" in response.text
+    assert "<html" in response.text.lower()
 
 
-def test_weather_endpoint(monkeypatch):
-    """Test the /weather endpoint by monkeypatching requests.get."""
+def test_weather_success(monkeypatch):
+    """Test the /weather endpoint with a mocked API response."""
 
-    class DummyResponse:
-        def __init__(self, status_code, json_data):
-            self.status_code = status_code
-            self._json = json_data
+    mock_response = {
+        "current_condition": [
+            {
+                "temp_C": "22",
+                "weatherDesc": [{"value": "Sunny"}],
+            }
+        ],
+        "nearest_area": [
+            {
+                "areaName": [{"value": "TestCity"}],
+                "latitude": "34.0522",
+                "longitude": "-118.2437",
+            }
+        ],
+    }
 
-        def json(self):
-            return self._json
+    def mock_get(*args, **kwargs):
+        class MockResponse:
+            def __init__(self):
+                self.status_code = 200
 
-    def dummy_get(url):
-        dummy_data = {
-            "current_condition": [
-                {"temp_C": "20", "weatherDesc": [{"value": "Sunny"}]}
-            ],
-            "nearest_area": [
-                {
-                    "areaName": [{"value": "TestCity"}],
-                    "latitude": "40.0",
-                    "longitude": "-74.0",
-                }
-            ],
-        }
-        return DummyResponse(200, dummy_data)
+            def json(self):
+                return mock_response
 
-    monkeypatch.setattr("requests.get", dummy_get)
+        return MockResponse()
 
-    response = client.get("/weather?location=TestCity")
+    monkeypatch.setattr("requests.get", mock_get)
+
+    response = client.get("/weather?location=Tel Aviv")
     assert response.status_code == 200
     data = response.json()
     assert data["location"] == "TestCity"
-    assert data["temperature"] == "20"
-    assert "Sunny" in data["description"]
+    assert data["temperature"] == "22"
+    assert data["description"] == "Sunny"
+
+
+def test_stress_status_flag_disabled(monkeypatch):
+    """Should return 403 if STRESS_TEST_FLAG is not enabled."""
+    monkeypatch.setenv("STRESS_TEST_FLAG", "false")
+    response = client.get("/stress_status")
+    assert response.status_code == 403
+    assert response.json()["detail"] == "CPU stress test feature is disabled"

@@ -1,7 +1,7 @@
 # Devops Leaders IL Course - Test App
+
 This project is a Python web application built with FastAPI that displays the latest weather reports for a user-specified location along with an interactive map using Leaflet.js. The project uses Bootstrap for styling and features enhanced CSS to provide a modern and responsive user interface.
 The Project was built with the assistance of OpenAI o3-mini-high model.
-
 
 ## Features
 
@@ -19,29 +19,35 @@ The Project was built with the assistance of OpenAI o3-mini-high model.
 ### Installation
 
 1. **Clone the repository:**
+
 ```bash
 git clone https://github.com/deftdot/devops-leaders-course-v2.git
 cd devops-leaders-course-v2
 ```
 
 2. **Create a virtual environment (optional, but recommended):**
+
 ```bash
-python -m venv venv  
-source venv/bin/activate  # On Windows: .\venv\Scripts\activate  
+python -m venv venv
+source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 ```
 
 3. **Install the required packages:**
+
 ```bash
-pip install -r requirements.txt  
+pip install -r requirements.txt
 ```
 
 ### Running the Application
 
 **Run the FastAPI server using Uvicorn:**
+
 ```bash
-uvicorn main:app --reload 
+uvicorn main:app --reload
 ```
+
 **Open your browser and navigate to:**
+
 ```bash
 http://127.0.0.1:8000
 ```
@@ -70,8 +76,8 @@ The CPU stress test feature in this application is protected by a feature flag. 
 - **Feature Flag:**  
   Ensure that you understand the implications of enabling the stress test. It is recommended to leave the **STRESS_TEST_FLAG** disabled (or set to any value other than `"true"`) during normal operation.
 
-
 ## Code Quality, Secrets, and Vulnerability Checks
+
 ### Overview
 
 - **Unit Tests:** The provided `test_main.py` uses pytest and FastAPI's TestClient to validate key endpoints. The weather endpoint test uses monkeypatching to simulate external API responses.
@@ -91,7 +97,7 @@ The CPU stress test feature in this application is protected by a feature flag. 
 
 - **black:**
   Verify code formatting with:
-    ```bash
+  ```bash
   black --check .
   ```
 
@@ -99,7 +105,7 @@ The CPU stress test feature in this application is protected by a feature flag. 
 
 - **detect-secrets:**
   Install and run detect-secrets to scan for sensitive information in the code:
-    ```bash
+  ```bash
   pip install detect-secrets
   detect-secrets scan .
   ```
@@ -108,13 +114,14 @@ The CPU stress test feature in this application is protected by a feature flag. 
 
 - **bandit:**
   Use Bandit to check the codebase for common security issues:
-    ```bash
+  ```bash
   pip install bandit
   bandit -r . --exclude ./venv -lll
   ```
 - **pip-audit**  
-  A free, open‑source tool from the Python Packaging Authority that scans your installed dependencies for known vulnerabilities.  
+  A free, open‑source tool from the Python Packaging Authority that scans your installed dependencies for known vulnerabilities.
   ```bash
   pip install pip-audit
   pip-audit -r requirements.txt
   ```
+

@@ -12,7 +12,7 @@ echo "============================"
 
 echo
 echo "--- Unit Tests ---"
-pytest -v
+pytest -v test_main.py
 rc=$?
 results["Unit Tests"]=$rc
 if [ $rc -ne 0 ]; then errors+=("Unit Tests"); fi

@@ -1,14 +1,13 @@
-import os
 import multiprocessing
-import time
 import os
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse, HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+import time
+
 import requests
 from dotenv import load_dotenv
-
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 load_dotenv()
 app = FastAPI()
@@ -48,9 +47,7 @@ def cpu_worker(end_time, load, cycle_time, global_iterations, stop_flag):
 async def home(request: Request):
     """Render the homepage, passing the stress-test feature flag."""
     stress_test_enabled = os.environ.get("STRESS_TEST_FLAG", "").lower() == "true"
-    return templates.TemplateResponse(
-        "index.html", {"request": request, "stress_test_enabled": stress_test_enabled}
-    )
+    return templates.TemplateResponse(request, "index.html", {"stress_test_enabled": stress_test_enabled})
 
 
 @app.get("/weather", response_class=JSONResponse)
@@ -59,19 +56,15 @@ async def weather(location: str):
     Retrieves weather info for the provided location using wttr.in.
     """
     url = f"http://wttr.in/{location}?format=j1"
-    response = requests.get(url)
+    response = requests.get(url, timeout=6)
     if response.status_code != 200:
-        raise HTTPException(
-            status_code=response.status_code, detail="Weather data not found"
-        )
+        raise HTTPException(status_code=response.status_code, detail="Weather data not found")
     data = response.json()
     try:
         current = data["current_condition"][0]
         nearest_area = data["nearest_area"][0] if data.get("nearest_area") else {}
     except (KeyError, IndexError):
-        raise HTTPException(
-            status_code=500, detail="Unexpected response format from weather service"
-        )
+        raise HTTPException(status_code=500, detail="Unexpected response format from weather service")
     weather_data = {
         "location": nearest_area.get("areaName", [{}])[0].get("value", location),
         "temperature": current.get("temp_C"),
@@ -84,38 +77,27 @@ async def weather(location: str):
 
 @app.get("/start_cpu_stress", response_class=JSONResponse)
 async def start_cpu_stress(duration: int = 10, load: int = 100):
-    """
-    Starts a CPU stress test for a given duration (in seconds) with a controllable load.
-
-    This endpoint is protected by the STRESS_TEST_FLAG feature flag.
-    """
     if os.environ.get("STRESS_TEST_FLAG", "").lower() != "true":
-        raise HTTPException(
-            status_code=403, detail="CPU stress test feature is disabled"
-        )
+        raise HTTPException(status_code=403, detail="CPU stress test feature is disabled")
 
-    global cpu_stress_processes, global_iterations, stop_flag, cpu_stress_end_time, cpu_stress_status_data
+    global cpu_stress_processes, global_iterations, stop_flag
+    global cpu_stress_end_time, cpu_stress_status_data
+
     if duration <= 0 or not (0 <= load <= 100):
-        raise HTTPException(
-            status_code=400, detail="Invalid duration or load parameter"
-        )
+        raise HTTPException(status_code=400, detail="Invalid duration or load parameter")
 
-    # Stop any existing stress test first.
     if cpu_stress_processes:
         for p in cpu_stress_processes:
             p.terminate()
         cpu_stress_processes = []
 
-    # Setup shared variables.
     global_iterations = multiprocessing.Value("i", 0)
     stop_flag = multiprocessing.Value("b", False)
     cpu_stress_end_time = time.time() + duration
 
-    # Use one process per available CPU core.
     workers = os.cpu_count() or 1
-    cycle_time = 0.1  # seconds per cycle
+    cycle_time = 0.1
 
-    # Update our status dictionary.
     cpu_stress_status_data = {
         "running": True,
         "start_time": time.time(),
@@ -125,7 +107,6 @@ async def start_cpu_stress(duration: int = 10, load: int = 100):
         "workers": workers,
     }
 
-    # Spawn the worker processes.
     for _ in range(workers):
         p = multiprocessing.Process(
             target=cpu_worker,
@@ -146,17 +127,10 @@ async def start_cpu_stress(duration: int = 10, load: int = 100):
 
 @app.get("/stop_cpu_stress", response_class=JSONResponse)
 async def stop_cpu_stress():
-    """
-    Stops the ongoing CPU stress test.
-
-    This endpoint is protected by the STRESS_TEST_FLAG feature flag.
-    """
     if os.environ.get("STRESS_TEST_FLAG", "").lower() != "true":
-        raise HTTPException(
-            status_code=403, detail="CPU stress test feature is disabled"
-        )
+        raise HTTPException(status_code=403, detail="CPU stress test feature is disabled")
 
-    global stop_flag, cpu_stress_status_data, cpu_stress_processes
+    global cpu_stress_processes
     if stop_flag is not None:
         stop_flag.value = True
     for p in cpu_stress_processes:
@@ -168,17 +142,9 @@ async def stop_cpu_stress():
 
 @app.get("/stress_status", response_class=JSONResponse)
 async def stress_status():
-    """
-    Returns the current status of the CPU stress test.
-
-    This endpoint is protected by the STRESS_TEST_FLAG feature flag.
-    """
     if os.environ.get("STRESS_TEST_FLAG", "").lower() != "true":
-        raise HTTPException(
-            status_code=403, detail="CPU stress test feature is disabled"
-        )
+        raise HTTPException(status_code=403, detail="CPU stress test feature is disabled")
 
-    global cpu_stress_status_data, global_iterations
     now = time.time()
     if cpu_stress_status_data.get("running", False):
         remaining = max(0, cpu_stress_status_data["end_time"] - now)
