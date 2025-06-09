@@ -47,7 +47,9 @@ def cpu_worker(end_time, load, cycle_time, global_iterations, stop_flag):
 async def home(request: Request):
     """Render the homepage, passing the stress-test feature flag."""
     stress_test_enabled = os.environ.get("STRESS_TEST_FLAG", "").lower() == "true"
-    return templates.TemplateResponse(request, "index.html", {"stress_test_enabled": stress_test_enabled})
+    return templates.TemplateResponse(
+        request, "index.html", {"stress_test_enabled": stress_test_enabled}
+    )
 
 
 @app.get("/weather", response_class=JSONResponse)
@@ -58,13 +60,17 @@ async def weather(location: str):
     url = f"http://wttr.in/{location}?format=j1"
     response = requests.get(url, timeout=6)
     if response.status_code != 200:
-        raise HTTPException(status_code=response.status_code, detail="Weather data not found")
+        raise HTTPException(
+            status_code=response.status_code, detail="Weather data not found"
+        )
     data = response.json()
     try:
         current = data["current_condition"][0]
         nearest_area = data["nearest_area"][0] if data.get("nearest_area") else {}
     except (KeyError, IndexError):
-        raise HTTPException(status_code=500, detail="Unexpected response format from weather service")
+        raise HTTPException(
+            status_code=500, detail="Unexpected response format from weather service"
+        )
     weather_data = {
         "location": nearest_area.get("areaName", [{}])[0].get("value", location),
         "temperature": current.get("temp_C"),
@@ -78,13 +84,17 @@ async def weather(location: str):
 @app.get("/start_cpu_stress", response_class=JSONResponse)
 async def start_cpu_stress(duration: int = 10, load: int = 100):
     if os.environ.get("STRESS_TEST_FLAG", "").lower() != "true":
-        raise HTTPException(status_code=403, detail="CPU stress test feature is disabled")
+        raise HTTPException(
+            status_code=403, detail="CPU stress test feature is disabled"
+        )
 
     global cpu_stress_processes, global_iterations, stop_flag
     global cpu_stress_end_time, cpu_stress_status_data
 
     if duration <= 0 or not (0 <= load <= 100):
-        raise HTTPException(status_code=400, detail="Invalid duration or load parameter")
+        raise HTTPException(
+            status_code=400, detail="Invalid duration or load parameter"
+        )
 
     if cpu_stress_processes:
         for p in cpu_stress_processes:
@@ -128,7 +138,9 @@ async def start_cpu_stress(duration: int = 10, load: int = 100):
 @app.get("/stop_cpu_stress", response_class=JSONResponse)
 async def stop_cpu_stress():
     if os.environ.get("STRESS_TEST_FLAG", "").lower() != "true":
-        raise HTTPException(status_code=403, detail="CPU stress test feature is disabled")
+        raise HTTPException(
+            status_code=403, detail="CPU stress test feature is disabled"
+        )
 
     global cpu_stress_processes
     if stop_flag is not None:
@@ -143,7 +155,9 @@ async def stop_cpu_stress():
 @app.get("/stress_status", response_class=JSONResponse)
 async def stress_status():
     if os.environ.get("STRESS_TEST_FLAG", "").lower() != "true":
-        raise HTTPException(status_code=403, detail="CPU stress test feature is disabled")
+        raise HTTPException(
+            status_code=403, detail="CPU stress test feature is disabled"
+        )
 
     now = time.time()
     if cpu_stress_status_data.get("running", False):
