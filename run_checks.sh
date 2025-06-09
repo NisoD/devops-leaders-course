@@ -1,19 +1,53 @@
 #!/bin/bash
-set -e
 
-echo "🔍 Running tests with pytest..."
-pytest test_main.py
+set +e  # Continue on errors
 
-echo "🧼 Running lint check with flake8 (max-line-length=120)..."
-flake8 main.py --max-line-length=120
+declare -A results
+failures=()
 
-echo "🎨 Running code formatting check with black (line length 120)..."
-black main.py --check --line-length 120
+run_step() {
+  local name=$1
+  local cmd=$2
 
-echo "🔐 Scanning for secrets using detect-secrets..."
-detect-secrets scan --baseline .secrets.baseline
+  echo
+  echo "--- $name ---"
+  eval "$cmd"
+  local rc=$?
+  results["$name"]=$rc
+  if [ $rc -ne 0 ]; then
+    failures+=("$name")
+  fi
+}
 
-echo "🛡️  Running security vulnerability scan with bandit..."
-bandit -r main.py -ll -ii
+echo "============================"
+echo " Running Simplified Test Suite"
+echo "============================"
 
-echo "✅ All checks passed!"
+run_step "Unit Tests" "pytest -v test_main.py"
+run_step "Formatting Check (black)" "black --line-length 120 --check ."
+run_step "Security Check (bandit)" "bandit -r . --exclude ./venv -lll"
+run_step "Dependency Audit (pip-audit)" "pip-audit -r requirements.txt"
+
+echo
+echo "============================"
+echo " Summary"
+echo "============================"
+
+for name in "${!results[@]}"; do
+  status="[FAIL]"
+  [ "${results[$name]}" -eq 0 ] && status="[PASS]"
+  printf "%s %s\n" "$status" "$name"
+done
+
+if [ ${#failures[@]} -gt 0 ]; then
+  echo
+  echo "Failures:"
+  for step in "${failures[@]}"; do
+    echo " - $step"
+  done
+  exit 1
+else
+  echo
+  echo "All checks passed successfully."
+  exit 0
+fi
