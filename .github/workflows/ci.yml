@@ -1,9 +1,9 @@
-name: CI Pipeline (Session 2)
+name: CI Pipeline with Docker
 
 on:
   workflow_dispatch:
   push:
-    branches: [session2-daniel]
+    branches: [docker-ci]
 
 jobs:
   test-and-build:
@@ -29,12 +29,11 @@ jobs:
         docker run --rm -d --name fastapi-test -p 8000:8000 fastapi-dev
         sleep 5
         CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' fastapi-test)
-        if [ "$CONTAINER_STATUS" = "true" ]; then
-          echo "Application started successfully"
+        if [ \"$CONTAINER_STATUS\" = \"true\" ]; then
+          echo \"Application started successfully\"
           docker stop fastapi-test
         else
-          echo "Application failed to start"
+          echo \"Application failed to start\"
           docker logs fastapi-test
           exit 1
         fi
-
