@@ -1,7 +1,4 @@
 fastapi
-pip-audit
-bandit
-safety
 uvicorn
 requests
 jinja2
@@ -14,4 +11,6 @@ requests-mock
 black
 isort
 flake8
-
+pip-audit
+bandit
+safety

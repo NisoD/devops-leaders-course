@@ -1,39 +1,103 @@
-name: CI Pipeline with Docker
+name: CI Pipeline 
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  
   push:
-    branches: [docker-ci]
+    branches: [ main, session3 ]  
+
+# Env Variables 
+env:
+  REGISTRY: ghcr.io  
+  IMAGE_NAME: ${{ github.repository }}  
 
 jobs:
-  test-and-build:
-    runs-on: ubuntu-latest
-
+  test:
+    runs-on: ubuntu-latest  
+    
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
 
-    - name: Build Docker image
-      run: docker build -t fastapi-dev .
-
-    - name: Run tests inside Docker container
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4  
+      with:
+        python-version: '3.12'  
+        
+    - name: Install system dependencies
       run: |
-        docker run --rm fastapi-dev /bin/bash -c "
-          pip install pytest httpx black bandit pip-audit detect-secrets &&
-          chmod +x run_tests.sh &&
-          ./run_tests.sh
-        "
-
-    - name: Verify application starts inside Docker container
+        sudo apt-get update  
+        sudo apt-get install -y python3-venv  
+        
+    - name: Install Python dependencies
       run: |
-        docker run --rm -d --name fastapi-test -p 8000:8000 fastapi-dev
-        sleep 5
-        CONTAINER_STATUS=$(docker inspect -f '{{.State.Running}}' fastapi-test)
-        if [ \"$CONTAINER_STATUS\" = \"true\" ]; then
-          echo \"Application started successfully\"
-          docker stop fastapi-test
-        else
-          echo \"Application failed to start\"
-          docker logs fastapi-test
-          exit 1
-        fi
+        python -m venv venv  
+        source venv/bin/activate  
+        pip install --upgrade pip  
+        pip install -r requirements.txt  
+        # ============== Development Packages ============
+        pip install pytest httpx  
+        pip install black  
+        pip install bandit  
+        pip install pip-audit  
+        pip install detect-secrets  
+        
+    - name: Run tests
+      run: |
+        source venv/bin/activate  
+        chmod +x run_tests.sh  
+        ./run_tests.sh  
+
+  build-and-push:
+    needs: test  # Runs only if test passed 
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  
+      packages: write  
+      
+    steps:
+    - uses: actions/checkout@v3
+    # Change repo to lowercase as required  
+    - name: Create lowercase image name
+      run: |
+        echo "IMAGE_NAME_LOWERCASE=$(echo ${{ env.IMAGE_NAME }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+    
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}  
+        username: ${{ github.actor }}  
+        password: ${{ secrets.GITHUB_TOKEN }}  
+    
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta  
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWERCASE }}  # Full image name
+        tags: |
+          type=sha,format=short  # Tag with short commit SHA (e.g., abc1234)
+          type=ref,event=branch  # Tag with branch name (e.g., main, session3)
+          latest  # Always tag with 'latest'
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3  
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .  
+        push: true  
+        platforms: linux/amd64,linux/arm64  
+        tags: ${{ steps.meta.outputs.tags }}  
+        labels: ${{ steps.meta.outputs.labels }}  
+        cache-from: type=gha  
+        cache-to: type=gha,mode=max  
+    
+    # Security scan 
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWERCASE }}:latest  # Image to scan
+        format: 'table'  
+        exit-code: '1'  
+        ignore-unfixed: true  
+        vuln-type: 'os,library'  
+        severity: 'CRITICAL,HIGH'  
