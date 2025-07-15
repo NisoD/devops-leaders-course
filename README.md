@@ -9,12 +9,17 @@ The Project was built with the assistance of OpenAI o3-mini-high model.
 - **Interactive Map:** Displays the location on an interactive map.
 - **Enhanced UI:** Modern and responsive design using Bootstrap and custom CSS.
 - **API Integration:** Uses the [wttr.in API](https://wttr.in/) to fetch weather details.
+- **CPU Stress Testing:** Optional CPU stress testing functionality (feature-flagged).
+- **Kubernetes Deployment:** Ready for deployment on Kubernetes with plain manifests.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Python 3.8 or higher
+- Docker (for containerization)
+- Kind (for local Kubernetes testing)
+- Kubectl (for Kubernetes management)
 
 ### Installation
 
@@ -37,6 +42,7 @@ pip install -r requirements.txt
 
 ### Running the Application
 
+#### Local Development
 **Run the FastAPI server using Uvicorn:**
 ```bash
 uvicorn main:app --reload 
@@ -44,6 +50,141 @@ uvicorn main:app --reload
 **Open your browser and navigate to:**
 ```bash
 http://127.0.0.1:8000
+```
+
+#### Docker Deployment
+**Build the Docker image:**
+```bash
+docker build -t devops-leaders-app:latest .
+```
+
+**Run the container:**
+```bash
+docker run -p 8000:8000 devops-leaders-app:latest
+```
+
+## Kubernetes Deployment with Kind
+
+### Prerequisites for Kubernetes Deployment
+
+1. **Install Kind:**
+```bash
+# On macOS
+brew install kind
+
+# On Windows (using Chocolatey)
+choco install kind
+
+# On Windows (using Scoop)
+scoop install kind
+```
+
+2. **Install kubectl:**
+```bash
+# On macOS
+brew install kubectl
+
+# On Windows (using Chocolatey)
+choco install kubernetes-cli
+
+# On Windows (using Scoop)
+scoop install kubectl
+```
+
+### Setting up Kind Cluster
+
+1. **Create a Kind cluster:**
+```bash
+kind create cluster --name devops-leaders
+```
+
+2. **Verify cluster is running:**
+```bash
+kubectl cluster-info --context kind-devops-leaders
+```
+
+### Building and Loading Docker Image
+
+1. **Build the Docker image:**
+```bash
+docker build -t devops-leaders-app:latest .
+```
+
+2. **Load the image into Kind:**
+```bash
+kind load docker-image devops-leaders-app:latest --name devops-leaders
+```
+
+### Deploying with Kubernetes Manifests
+
+1. **Navigate to the manifests directory:**
+```bash
+cd k8s-manifests
+```
+
+2. **Deploy using the provided script:**
+```bash
+./deploy.sh
+```
+
+Alternatively, apply manifests manually:
+
+3. **Apply manifests individually:**
+```bash
+# Create namespace
+kubectl create namespace devops-leaders
+
+# Apply manifests in order
+kubectl apply -f configmap.yaml -n devops-leaders
+kubectl apply -f service.yaml -n devops-leaders
+kubectl apply -f deployment.yaml -n devops-leaders
+```
+
+4. **Check the deployment:**
+```bash
+kubectl get pods -n devops-leaders
+kubectl get services -n devops-leaders
+```
+
+5. **Port forward to access the application:**
+```bash
+kubectl port-forward service/devops-leaders-app-service 8080:80 -n devops-leaders
+```
+
+6. **Access the application:**
+Open your browser and navigate to: `http://localhost:8080`
+
+### Kubernetes Resources
+
+The deployment includes the following Kubernetes resources:
+
+- **Deployment:** Runs the FastAPI application with 2 replicas by default
+- **Service:** LoadBalancer service (tunneled through kubectl port-forward in Kind)
+- **ConfigMap:** Non-sensitive configuration data including environment variables
+
+#### Customizing the Deployment
+
+You can customize the deployment by editing the manifest files:
+
+- **`configmap.yaml`** - Update environment variables (e.g., set `STRESS_TEST_FLAG: "true"`)
+- **`deployment.yaml`** - Change resource limits, replicas, or container settings
+- **`service.yaml`** - Modify service type or ports
+
+### Monitoring and Scaling
+
+1. **Monitor pods:**
+```bash
+kubectl get pods -n devops-leaders -w
+```
+
+2. **View application logs:**
+```bash
+kubectl logs -l app.kubernetes.io/name=devops-leaders-app -n devops-leaders
+```
+
+3. **Scale manually (if needed):**
+```bash
+kubectl scale deployment devops-leaders-app-deployment --replicas=5 -n devops-leaders
 ```
 
 ## Stress Test Configuration and Cautions
@@ -118,3 +259,15 @@ The CPU stress test feature in this application is protected by a feature flag. 
   pip install pip-audit
   pip-audit -r requirements.txt
   ```
+
+## Architecture Overview
+
+The application is designed with the following architecture:
+
+- **FastAPI Backend:** Serves the web application and API endpoints
+- **Static Assets:** CSS and JavaScript files for the frontend
+- **Templates:** Jinja2 templates for server-side rendering
+- **External API:** Integration with wttr.in for weather data
+- **Containerization:** Docker container for consistent deployment
+- **Kubernetes:** Plain manifests for deployment
+- **Kind:** Local Kubernetes cluster for development and testing
