@@ -154,12 +154,36 @@ kubectl port-forward service/devops-leaders-app-service 8080:80 -n devops-leader
 6. **Access the application:**
 Open your browser and navigate to: `http://localhost:8080`
 
+#### Accessing the Application via NodePort
+
+Since the service is of type `NodePort`, you can also access the application directly using the kind node's IP and the assigned NodePort:
+
+1. **Get the NodePort:**
+   ```bash
+   kubectl get service devops-leaders-app-service -n devops-leaders
+   # Look for the PORT(S) column, e.g. 80:31234/TCP (31234 is the NodePort)
+   ```
+
+2. **Get the kind node IP:**
+   ```bash
+   # For most setups, this will be localhost, but you can check with:
+   kubectl get nodes -o wide
+   # Use the INTERNAL-IP of the node
+   ```
+
+3. **Access the app:**
+   Open your browser to `http://<kind-node-ip>:<nodeport>`
+
+   For most local setups, this will be `http://localhost:<nodeport>`
+
+You can still use port-forwarding as an alternative if you prefer.
+
 ### Kubernetes Resources
 
 The deployment includes the following Kubernetes resources:
 
 - **Deployment:** Runs the FastAPI application with 2 replicas by default
-- **Service:** LoadBalancer service (tunneled through kubectl port-forward in Kind)
+- **Service:** NodePort service (accessible via kind node IP and assigned port, or tunneled through kubectl port-forward)
 - **ConfigMap:** Non-sensitive configuration data including environment variables
 
 #### Customizing the Deployment
