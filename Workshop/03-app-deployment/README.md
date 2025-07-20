@@ -206,13 +206,13 @@ kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.
 
 ```bash
 # Check if pods are running
-kubectl get pods -n workshop-app
+kubectl get pods -n devops-app
 
 # Check services
-kubectl get services -n workshop-app
+kubectl get services -n devops-app
 
 # Check ingress
-kubectl get ingress -n workshop-app
+kubectl get ingress -n devops-app
 
 # Set up port forwarding to access the application (recommended approach)
 kubectl port-forward service/sample-app-service 8080:80 -n devops-app

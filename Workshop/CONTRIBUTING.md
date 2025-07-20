@@ -1,51 +1,406 @@
 # Contributing to DevOps Bootcamp - IaC and Monitoring
 
-Thank you for your interest in contributing to this workshop! This guide will help you understand how to contribute effectively.
+Thank you for your interest in contributing to this workshop! This guide will help you contribute effectively and ensure a consistent experience for all learners.
 
-## 🎯 How to Contribute
+## 📖 Contribution Overview
 
-### Types of Contributions
+### 🎯 **Our Mission**
+Create an accessible, hands-on learning experience that teaches Infrastructure as Code and Observability concepts through practical implementation.
 
-We welcome the following types of contributions:
+### 🤝 **Types of Contributions Welcome**
 
-1. **Bug Fixes** - Fix issues in code, configurations, or documentation
-2. **Documentation Improvements** - Enhance explanations, add examples, fix typos
-3. **New Features** - Add new tasks, tools, or learning modules
-4. **Workshop Enhancements** - Improve the learning experience
-5. **Platform Support** - Add support for different operating systems or environments
+| Type | Description | Examples |
+|------|-------------|----------|
+| 🐛 **Bug Fixes** | Fix issues in code, configurations, or documentation | Terraform errors, broken links, typos |
+| 📚 **Documentation** | Improve explanations, add examples, fix formatting | README updates, better error messages |
+| ✨ **Features** | Add new learning modules, tools, or capabilities | New monitoring stack, additional tasks |
+| 🔧 **Enhancements** | Improve existing workshop experience | Better automation, clearer instructions |
+| 🖥️ **Platform Support** | Add support for different OS or environments | Windows WSL improvements, ARM support |
+| 🎨 **User Experience** | Make the workshop more accessible and engaging | Better validation scripts, visual guides |
 
-### Getting Started
+---
 
-1. **Fork the repository**
-2. **Clone your fork locally**
-3. **Create a new branch** for your contribution
-4. **Make your changes**
-5. **Test thoroughly**
-6. **Submit a pull request**
+## 🚀 Getting Started
 
-## 🛠️ Development Setup
+### **Step 1: Fork and Clone**
+```bash
+# Fork the repository on GitHub
+# Then clone your fork
+git clone https://github.com/YOUR-USERNAME/devops-leaders-course-v2.git
+cd devops-leaders-course-v2
 
-### Prerequisites
+# Add upstream remote
+git remote add upstream https://github.com/ORIGINAL-OWNER/devops-leaders-course-v2.git
+```
 
-- All workshop prerequisites (see PREREQUISITES.md)
-- Basic understanding of the workshop content
-- Testing environment for validation
+### **Step 2: Set Up Development Environment**
+```bash
+# Install prerequisites (see PREREQUISITES.md)
+./Workshop/scripts/verify-setup.sh
 
-### Local Development
+# Test current workshop setup
+cd Workshop
+./scripts/setup-workshop.sh
+
+# Run through a task to understand the flow
+cd 01-iac-concepts && cat README.md
+```
+
+### **Step 3: Create Feature Branch**
+```bash
+# Create descriptive branch name
+git checkout -b feature/improve-monitoring-docs
+# or
+git checkout -b fix/terraform-provider-issue
+# or  
+git checkout -b enhancement/better-validation-script
+```
+
+---
+
+## 🛠️ Development Workflow
+
+### **Making Changes**
+
+#### **For Documentation Changes**
+```bash
+# Edit README files
+vim Workshop/01-iac-concepts/README.md
+
+# Test markdown rendering
+# (Use VS Code preview or markdown tools)
+
+# Verify links work
+./scripts/check-links.sh
+```
+
+#### **For Code/Configuration Changes**  
+```bash
+# Make your changes
+vim Workshop/02-terraform-k8s/main.tf
+
+# Test the specific task
+cd Workshop/02-terraform-k8s
+terraform init
+terraform plan
+terraform apply
+
+# Test cleanup
+terraform destroy
+```
+
+#### **For Script Changes**
+```bash
+# Edit script
+vim Workshop/scripts/verify-setup.sh
+
+# Test on clean environment (if possible)
+# Ensure script handles edge cases
+
+# Test script help/usage
+./scripts/verify-setup.sh --help
+```
+
+### **Testing Your Changes**
+
+#### **Comprehensive Testing Checklist**
+- [ ] Run `./scripts/verify-setup.sh` successfully
+- [ ] Complete affected tasks from start to finish
+- [ ] Test both success and failure scenarios  
+- [ ] Verify cleanup works properly
+- [ ] Check all links in documentation
+- [ ] Validate on different platforms (if possible)
+
+#### **Platform-Specific Testing**
+```bash
+# macOS testing
+./test-on-macos.sh
+
+# Linux testing (if you have access)  
+./test-on-linux.sh
+
+# Windows WSL testing (if you have access)
+./test-on-wsl.sh
+```
+
+---
+
+## 📝 Contribution Standards
+
+### **Code Quality Standards**
+
+#### **Terraform Code**
+- ✅ Follow HashiCorp style guide
+- ✅ Use meaningful variable names and descriptions
+- ✅ Include provider version constraints
+- ✅ Add comments for complex logic
+- ✅ Use consistent formatting (`terraform fmt`)
+
+```hcl
+# ✅ Good example
+variable "cluster_name" {
+  description = "Name of the Kubernetes cluster to create"
+  type        = string
+  default     = "devops-workshop"
+  
+  validation {
+    condition     = can(regex("^[a-z0-9-]+$", var.cluster_name))
+    error_message = "Cluster name must contain only lowercase letters, numbers, and hyphens."
+  }
+}
+```
+
+#### **Shell Scripts**
+- ✅ Use `#!/bin/bash` shebang
+- ✅ Add error handling (`set -euo pipefail`)
+- ✅ Include help/usage information
+- ✅ Use meaningful variable names
+- ✅ Add comments for complex logic
 
 ```bash
-# Clone your fork
-git clone https://github.com/YOUR-USERNAME/devops-bootcamp-iac-monitoring.git
-cd devops-bootcamp-iac-monitoring
+#!/bin/bash
+set -euo pipefail
 
-# Create a new branch
-git checkout -b feature/your-contribution-name
+# ✅ Good example
+function validate_docker() {
+  if ! command -v docker &> /dev/null; then
+    echo "❌ Docker is not installed"
+    return 1
+  fi
+  
+  if ! docker info &> /dev/null; then
+    echo "❌ Docker daemon is not running"
+    return 1
+  fi
+  
+  echo "✅ Docker is running"
+  return 0
+}
+```
 
-# Test the current setup
-./scripts/setup.sh
+### **Documentation Standards**
 
-# Make your changes
-# ...
+#### **README Structure**
+Follow this consistent structure across all README files:
+
+```markdown
+# Task/Module Title
+
+## 📖 [Module/Task] Outline
+- Overview of what's covered
+- Learning objectives
+- Time estimates
+- Prerequisites
+
+## 🚀 Step-by-Step Execution
+- Clear, numbered steps
+- Expected outputs
+- Validation commands
+
+## 🔍 Understanding [Concept]
+- Explain what was built/learned
+- Why it matters
+- Key takeaways
+
+## ✅ Validation Checklist
+- Concrete success criteria
+- Troubleshooting for common issues
+
+## 📚 Further Reading (Extensions)
+- Advanced topics not covered
+- Related technologies
+- External resources
+```
+
+#### **Writing Style Guidelines**
+- ✅ **Use active voice**: "Deploy the application" not "The application should be deployed"
+- ✅ **Be specific**: "Run `terraform apply`" not "apply the configuration"
+- ✅ **Include expected outputs**: Show what success looks like
+- ✅ **Add context**: Explain why we're doing something
+- ✅ **Use consistent emoji**: Follow established patterns
+- ✅ **Keep sections focused**: One concept per section
+
+### **Version Control Standards**
+
+#### **Commit Message Format**
+```bash
+# Format: type(scope): description
+# Examples:
+git commit -m "docs(monitoring): improve troubleshooting section"
+git commit -m "fix(terraform): correct provider version constraint"
+git commit -m "feat(scripts): add automated dashboard import"
+git commit -m "enhancement(workshop): better error messages in validation"
+```
+
+#### **Commit Types**
+- `feat`: New feature or task
+- `fix`: Bug fix
+- `docs`: Documentation only changes
+- `enhancement`: Improve existing functionality
+- `refactor`: Code restructuring without feature changes
+- `test`: Adding or updating tests
+- `chore`: Maintenance tasks
+
+---
+
+## 📋 Pull Request Process
+
+### **Before Submitting PR**
+
+#### **Pre-submission Checklist**
+- [ ] Branch is up to date with main branch
+- [ ] All tests pass locally
+- [ ] Documentation updated (if needed)
+- [ ] No breaking changes (or clearly documented)
+- [ ] Commit messages follow standards
+- [ ] Changes are focused and related
+
+```bash
+# Update your branch
+git fetch upstream
+git rebase upstream/main
+
+# Run final tests
+./Workshop/scripts/verify-setup.sh
+./test-your-changes.sh
+```
+
+### **Pull Request Template**
+When creating a PR, include:
+
+```markdown
+## 📝 Description
+Brief description of changes and why they were made.
+
+## 🧪 Testing
+- [ ] Tested on macOS/Linux/Windows
+- [ ] All workshop tasks complete successfully
+- [ ] Documentation renders correctly
+- [ ] No broken links
+
+## 📷 Screenshots (if applicable)
+Before/after screenshots for UI changes.
+
+## ⚡ Breaking Changes
+List any breaking changes and migration steps.
+
+## 📚 Additional Context
+Link to issues, discussions, or external references.
+```
+
+### **Review Process**
+1. **Automated checks** run on all PRs
+2. **Maintainer review** for code quality and workshop fit
+3. **Community feedback** welcome on larger changes
+4. **Testing** by maintainers on different platforms
+5. **Merge** after approval and passing checks
+
+---
+
+## 🎯 Contribution Ideas
+
+### **Good First Contributions**
+- Fix typos or broken links
+- Improve error messages in scripts
+- Add missing validation steps
+- Enhance troubleshooting sections
+- Test on different platforms and document issues
+
+### **Intermediate Contributions**  
+- Add support for additional platforms
+- Improve automation scripts
+- Create additional dashboard examples
+- Add more comprehensive testing
+- Enhance workshop validation
+
+### **Advanced Contributions**
+- Add new monitoring tools or techniques
+- Create alternative deployment methods
+- Add advanced troubleshooting tools
+- Implement workshop analytics
+- Create instructor guides
+
+---
+
+## 🌟 Recognition
+
+### **Contributors Hall of Fame**
+All contributors are recognized in:
+- Repository README
+- Workshop credits
+- Release notes for significant contributions
+
+### **Contribution Levels**
+- 🥉 **Helper**: Documentation improvements, bug reports
+- 🥈 **Contributor**: Feature additions, platform support
+- 🥇 **Maintainer**: Ongoing support, major enhancements
+
+---
+
+## 📞 Getting Help
+
+### **Development Questions**
+- **GitHub Discussions**: For feature ideas and design questions
+- **Issues**: For bug reports and specific problems
+- **Direct Contact**: Reach out to maintainers for guidance
+
+### **Resources for Contributors**
+- [Terraform Style Guide](https://www.terraform.io/docs/extend/best-practices/naming.html)
+- [Kubernetes Documentation](https://kubernetes.io/docs/home/)
+- [Markdown Guide](https://www.markdownguide.org/)
+- [Git Best Practices](https://git-scm.com/book/en/v2)
+
+---
+
+## 🚀 Development Environment Setup
+
+### **Recommended Tools**
+- **IDE**: VS Code with Terraform, YAML, and Markdown extensions
+- **Testing**: Docker Desktop, kind for local cluster testing
+- **Validation**: `terraform validate`, `terraform fmt`, markdown linters
+
+### **Local Development Tips**
+```bash
+# Keep your fork up to date
+git fetch upstream
+git checkout main  
+git merge upstream/main
+git push origin main
+
+# Clean up feature branches
+git branch -d feature/completed-feature
+
+# Test workshop changes end-to-end
+./Workshop/scripts/setup-workshop.sh
+# Complete all tasks
+./Workshop/scripts/cleanup-workshop.sh
+```
+
+---
+
+## 📜 Code of Conduct
+
+### **Our Pledge**
+We are committed to providing a welcoming and inclusive experience for all contributors, regardless of background or experience level.
+
+### **Expected Behavior**
+- ✅ **Be respectful** and considerate in all interactions
+- ✅ **Help others learn** - this is an educational project
+- ✅ **Focus on constructive feedback** rather than criticism
+- ✅ **Assume good intent** when reviewing contributions
+- ✅ **Share knowledge** and document your learnings
+
+### **Unacceptable Behavior**
+- ❌ Harassment, discrimination, or exclusionary language
+- ❌ Trolling, insulting, or derogatory comments
+- ❌ Publishing others' private information
+- ❌ Spam or excessive self-promotion
+
+---
+
+**Ready to contribute? We can't wait to see what you build! 🎉**
+
+**Questions?** Open an issue or discussion - the community is here to help!
 
 # Test your changes
 ./scripts/cleanup.sh

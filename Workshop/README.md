@@ -2,76 +2,123 @@
 
 Welcome to the comprehensive 4-hour workshop on Infrastructure as Code and Observability! This hands-on session will teach you how to provision infrastructure using Terraform and implement a complete observability stack.
 
-## 🎯 Learning Objectives
+## 📖 Workshop Outline
 
-By the end of this workshop, you will be able to:
-- Understand IaC principles and best practices
-- Provision Kubernetes clusters using Terraform
-- Deploy applications using Infrastructure as Code
-- Implement comprehensive observability with Prometheus, Grafana, and Loki
-- Create meaningful dashboards and alerts
-- Add structured logging to applications
-
-## 📋 Prerequisites
-
-- Completion of previous sessions:
-  - DevOps Basics
-  - Linux and CI/CD in Real World
-  - Containers
-  - Kubernetes
-- Docker installed and running
-- kubectl installed
-- Kind installed (Kubernetes in Docker)
-- Terraform installed (>= 1.0)
-- Git basics
-
-**Quick Setup Check:**
+### 📋 Prerequisites Check
+Before starting, verify your environment is ready:
 ```bash
 ./scripts/verify-setup.sh
 ```
 
-**Need to install Kind?** See [KIND_INSTALLATION.md](KIND_INSTALLATION.md) for detailed instructions.
-
-## 🕐 Schedule (4.25 hours + 30min break)
-
-### Part 1: Infrastructure as Code (1.75 hours)
-- IaC Overview and Concepts (30 min)
-- Task 1: Provision Kubernetes cluster with Kind via Terraform (30 min)
-- Task 2: Build, Deploy Application via Terraform (35 min)
-
-### Break (30 minutes)
-
-### Part 2: Observability and Monitoring (2 hours)
-- Observability Concepts Overview (30 min)
-- Task 3: Deploy Monitoring Stack (Prometheus, Grafana, Loki, Alloy) (45 min)
-- Task 4: Create Grafana Dashboards and Visualizations (45 min)
-
-## 🗂️ Workshop Structure
+### 🎯 Learning Path Overview
+This workshop follows a structured path where each module builds upon the previous one:
 
 ```
-├── 01-iac-concepts/           # IaC theory and examples
-├── 02-terraform-k8s/          # Terraform configurations for K8s
-├── 03-app-deployment/         # Enhanced application deployment with logging
-├── 04-observability-concepts/ # Observability theory
-├── 05-monitoring-stack/       # Prometheus, Grafana, Loki setup
-├── 06-grafana-dashboards/     # Dashboard configurations & automation
-└── scripts/                   # Helper scripts
+Prerequisites → IaC Concepts → Terraform + K8s → App Deployment → Monitoring → Dashboards
 ```
 
-## 🚀 Getting Started
+### 📅 Schedule (4.25 hours + 30min break)
 
-1. Clone this repository
-2. Follow the README files in each directory in order
-3. Complete the tasks step by step
-4. Ask questions during the workshop!
+**Part 1: Infrastructure as Code (1.75 hours)**
+- 📚 [IaC Overview and Concepts](01-iac-concepts/README.md) (30 min)
+- 🛠️ [Task 1: Provision Kubernetes cluster](02-terraform-k8s/README.md) (30 min)
+- 🚀 [Task 2: Deploy Application](03-app-deployment/README.md) (35 min)
 
-## 📚 Additional Resources
+**Break (30 minutes)**
 
-- [Terraform Documentation](https://www.terraform.io/docs)
-- [Kubernetes Documentation](https://kubernetes.io/docs)
-- [Prometheus Documentation](https://prometheus.io/docs)
-- [Grafana Documentation](https://grafana.com/docs)
+**Part 2: Observability and Monitoring (2 hours)**
+- 📚 [Observability Concepts Overview](04-observability-concepts/README.md) (30 min)
+- 🛠️ [Task 3: Deploy Monitoring Stack](05-monitoring-stack/README.md) (45 min)
+- 📊 [Task 4: Create Grafana Dashboards](06-grafana-dashboards/README.md) (45 min)
 
 ---
 
-**Happy Learning! 🎉**
+## ⚡ Quick Start Guide
+
+### Step 1: Environment Setup
+1. **Prerequisites Check**: Run `./scripts/verify-setup.sh`
+2. **Missing Tools?** See [PREREQUISITES.md](PREREQUISITES.md) for installation guides
+3. **Kind Installation**: See [KIND_INSTALLATION.md](KIND_INSTALLATION.md) if needed
+
+### Step 2: Workshop Execution
+1. **Start with Theory**: Read [01-iac-concepts/README.md](01-iac-concepts/README.md)
+2. **Follow Hands-on Tasks**: Complete Tasks 1-4 in sequence
+3. **Use Helper Scripts**: Located in `scripts/` directory for setup/cleanup
+
+### Step 3: Validation
+Each task includes validation steps to confirm successful completion.
+
+---
+
+## 🎯 Learning Objectives
+
+By the end of this workshop, you will be able to:
+- ✅ Understand IaC principles and best practices
+- ✅ Provision Kubernetes clusters using Terraform
+- ✅ Deploy applications using Infrastructure as Code
+- ✅ Implement comprehensive observability with Prometheus, Grafana, and Loki
+- ✅ Create meaningful dashboards and alerts
+- ✅ Add structured logging to applications
+
+---
+
+## � Workshop Structure
+
+```
+Workshop/
+├── 01-iac-concepts/           # 📚 Theory: IaC principles and concepts
+├── 02-terraform-k8s/          # 🛠️ Task 1: Provision K8s cluster
+├── 03-app-deployment/         # 🚀 Task 2: Deploy application
+├── 04-observability-concepts/ # 📚 Theory: Observability principles
+├── 05-monitoring-stack/       # 🛠️ Task 3: Deploy monitoring stack
+├── 06-grafana-dashboards/     # 📊 Task 4: Create dashboards
+├── scripts/                   # 🔧 Helper scripts (setup, cleanup, validation)
+├── PREREQUISITES.md           # 📋 Installation requirements
+├── CONTRIBUTING.md            # 🤝 Contribution guidelines
+└── KIND_INSTALLATION.md       # 🐳 Kind-specific setup
+```
+
+---
+
+## �️ Prerequisites
+
+### Required Knowledge
+- DevOps Basics
+- Linux and CI/CD fundamentals
+- Container concepts
+- Kubernetes basics
+
+### Required Software
+- ✅ Docker installed and running
+- ✅ kubectl installed
+- ✅ Kind installed (Kubernetes in Docker)
+- ✅ Terraform installed (>= 1.0)
+- ✅ Git basics
+
+**Need help installing?** See [PREREQUISITES.md](PREREQUISITES.md) for detailed installation guides.
+
+---
+
+## 📚 Further Reading & Extensions
+
+### Core Documentation
+- [Terraform Documentation](https://www.terraform.io/docs) - Infrastructure as Code
+- [Kubernetes Documentation](https://kubernetes.io/docs) - Container orchestration
+- [Prometheus Documentation](https://prometheus.io/docs) - Metrics collection
+- [Grafana Documentation](https://grafana.com/docs) - Observability dashboards
+
+### Advanced Topics (Not Covered in Workshop)
+- Multi-cloud Terraform deployments
+- GitOps with ArgoCD/Flux
+- Advanced Kubernetes security
+- Service mesh observability
+- MLOps monitoring patterns
+
+### Community & Support
+- [Workshop Issues](https://github.com/your-repo/issues) - Report problems
+- [Discussions](https://github.com/your-repo/discussions) - Ask questions
+- [Contributing Guide](CONTRIBUTING.md) - Help improve the workshop
+
+---
+
+**Ready to start? Begin with [01-iac-concepts/README.md](01-iac-concepts/README.md)** 🚀
