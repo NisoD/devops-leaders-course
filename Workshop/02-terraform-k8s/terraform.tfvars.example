@@ -1,0 +1,7 @@
+# Example configuration file
+# Copy this to terraform.tfvars and customize as needed
+
+cluster_name         = "devops-workshop"
+kubernetes_version   = "v1.28.0"
+worker_nodes        = 2
+kubeconfig_path     = "./kubeconfig"

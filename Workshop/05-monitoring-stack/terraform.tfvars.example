@@ -1,0 +1,11 @@
+# Example configuration file
+# Copy this to terraform.tfvars and customize as needed
+
+kubeconfig_path          = "../02-terraform-k8s/kubeconfig"
+monitoring_namespace     = "monitoring"
+prometheus_retention     = "15d"
+prometheus_storage_size  = "10Gi"
+loki_retention          = "168h"  # 7 days
+loki_storage_size       = "5Gi"
+grafana_admin_password  = "admin123"
+enable_ingress          = false
