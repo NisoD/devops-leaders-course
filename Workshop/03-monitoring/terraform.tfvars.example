@@ -1,7 +1,7 @@
 # Example configuration file
 # Copy this to terraform.tfvars and customize as needed
 
-kubeconfig_path          = "../02-terraform-k8s/kubeconfig"
+kubeconfig_path          = "../01-cluster-setup/kubeconfig"
 monitoring_namespace     = "monitoring"
 prometheus_retention     = "15d"
 prometheus_storage_size  = "10Gi"

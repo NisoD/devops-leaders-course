@@ -44,6 +44,18 @@ venv.bak/
 *.sublime-workspace
 *.sublime-project
 
+# Kubernetes configuration files (generated during workshop)
+kubeconfig
+**/kubeconfig
+*.kubeconfig
+
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfplan
+.terraform/
+.terraform.lock.hcl
+
 # Logs and databases
 *.log
 *.sqlite

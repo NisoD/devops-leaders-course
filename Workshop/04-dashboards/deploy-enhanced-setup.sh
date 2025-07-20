@@ -31,11 +31,22 @@ print_error() {
 
 # Check if we're in the right directory
 if [ ! -f "README.md" ] || [ ! -d "dashboards" ]; then
-    print_error "Please run this script from the 06-grafana-dashboards directory"
+    print_error "Please run this script from the 04-dashboards directory"
     exit 1
 fi
 
-print_status "Step 1: Verifying application is running..."
+print_status "Step 1: Creating DevOps Workshop folder in Grafana..."
+
+# Create a dedicated folder for workshop dashboards
+folder_payload='{
+  "title": "DevOps Workshop",
+  "uid": "devops-workshop"
+}'
+
+# We'll set this after we get the folder ID
+WORKSHOP_FOLDER_ID=""
+
+print_status "Step 2: Verifying application is running..."
 
 # Check if app is running
 if kubectl get pods -n devops-app | grep -q "Running"; then
@@ -45,7 +56,7 @@ else
     exit 1
 fi
 
-print_status "Step 2: Setting up port-forward to Grafana..."
+print_status "Step 3: Setting up port-forward to Grafana..."
 
 # Kill any existing port-forwards
 pkill -f "kubectl port-forward.*grafana" 2>/dev/null || true
@@ -58,7 +69,7 @@ sleep 3
 # Get Grafana password
 GRAFANA_PASSWORD=$(kubectl get secret grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode)
 
-print_status "Step 3: Configuring data sources and importing dashboards..."
+print_status "Step 4: Configuring data sources and creating workshop folder..."
 
 # Wait for Grafana to be accessible
 for i in {1..10}; do
@@ -70,6 +81,36 @@ for i in {1..10}; do
         sleep 3
     fi
 done
+
+# Create workshop folder
+print_status "Creating DevOps Workshop folder..."
+
+# First, check if folder already exists
+existing_folders=$(curl -s -X GET \
+    -u "admin:${GRAFANA_PASSWORD}" \
+    http://localhost:3000/api/folders)
+
+existing_folder_id=$(echo "$existing_folders" | jq -r '.[] | select(.uid=="devops-workshop") | .id')
+
+if [ "$existing_folder_id" != "null" ] && [ -n "$existing_folder_id" ]; then
+    WORKSHOP_FOLDER_ID="$existing_folder_id"
+    print_success "DevOps Workshop folder already exists (ID: $WORKSHOP_FOLDER_ID)"
+else
+    # Try to create the folder
+    folder_response=$(curl -s -X POST \
+        -H "Content-Type: application/json" \
+        -u "admin:${GRAFANA_PASSWORD}" \
+        -d "$folder_payload" \
+        http://localhost:3000/api/folders)
+    
+    if echo "$folder_response" | jq -e '.id' >/dev/null 2>&1; then
+        WORKSHOP_FOLDER_ID=$(echo "$folder_response" | jq -r '.id')
+        print_success "DevOps Workshop folder created (ID: $WORKSHOP_FOLDER_ID)"
+    else
+        print_warning "Could not create folder, using General folder. Response: $folder_response"
+        WORKSHOP_FOLDER_ID=0
+    fi
+fi
 
 # Configure Prometheus data source
 print_status "Configuring Prometheus data source..."
@@ -90,7 +131,7 @@ response=$(curl -s -X POST \
 if echo "$response" | grep -q '"message":"Datasource added"'; then
     print_success "Prometheus data source configured"
 elif echo "$response" | grep -q '"message":"Data source with the same name already exists"'; then
-    print_success "Prometheus data source already exists"
+    print_success "Prometheus data source already configured"
 else
     print_warning "Prometheus data source configuration response: $response"
 fi
@@ -113,7 +154,7 @@ response=$(curl -s -X POST \
 if echo "$response" | grep -q '"message":"Datasource added"'; then
     print_success "Loki data source configured"
 elif echo "$response" | grep -q '"message":"Data source with the same name already exists"'; then
-    print_success "Loki data source already exists"
+    print_success "Loki data source already configured"
 else
     print_warning "Loki data source configuration response: $response"
 fi
@@ -143,14 +184,25 @@ for dashboard in "${dashboards[@]}"; do
     # Read the dashboard content
     dashboard_content=$(cat "dashboards/${dashboard}.json")
     
+    # Check if this dashboard has a nested structure (dashboard.dashboard)
+    if echo "$dashboard_content" | jq -e '.dashboard' >/dev/null 2>&1; then
+        # Extract the actual dashboard from the wrapper
+        actual_dashboard=$(echo "$dashboard_content" | jq '.dashboard')
+    else
+        # Use the content as-is
+        actual_dashboard="$dashboard_content"
+    fi
+    
     # For log-analysis dashboard, handle the datasource template variable
     if [ "$dashboard" == "log-analysis" ]; then
-        # Create dashboard import payload with proper datasource mapping
+        # Create dashboard import payload with proper datasource mapping AND folder
         dashboard_payload=$(jq -n \
-            --argjson dashboard "$dashboard_content" \
+            --argjson dashboard "$actual_dashboard" \
             --arg loki_uid "$loki_uid" \
+            --arg folder_id "$WORKSHOP_FOLDER_ID" \
             '{
-                dashboard: $dashboard,
+                dashboard: ($dashboard + {folderId: ($folder_id | tonumber)}),
+                folderId: ($folder_id | tonumber),
                 overwrite: true,
                 inputs: [
                     {
@@ -164,9 +216,10 @@ for dashboard in "${dashboards[@]}"; do
     else
         # For other dashboards, use simple import
         dashboard_payload=$(jq -n \
-            --argjson dashboard "$dashboard_content" \
+            --argjson dashboard "$actual_dashboard" \
+            --arg folder_id "$WORKSHOP_FOLDER_ID" \
             '{
-                dashboard: $dashboard,
+                dashboard: ($dashboard + {folderId: ($folder_id | tonumber)}),
                 overwrite: true
             }')
     fi
@@ -189,7 +242,7 @@ for dashboard in "${dashboards[@]}"; do
         fallback_response=$(curl -s -X POST \
             -H "Content-Type: application/json" \
             -u "admin:${GRAFANA_PASSWORD}" \
-            -d "$(echo "$dashboard_content" | jq '. + {overwrite: true}')" \
+            -d "$(echo "$actual_dashboard" | jq --arg folder_id "$WORKSHOP_FOLDER_ID" '. + {overwrite: true, folderId: ($folder_id | tonumber)}')" \
             http://localhost:3000/api/dashboards/db)
         
         if echo "$fallback_response" | grep -q '"status":"success"'; then
@@ -200,7 +253,7 @@ for dashboard in "${dashboards[@]}"; do
     fi
 done
 
-print_status "Step 4: Generating some test traffic..."
+print_status "Step 5: Generating some test traffic..."
 
 # Port forward to app
 kubectl port-forward service/sample-app-service 8080:80 -n devops-app >/dev/null 2>&1 &
@@ -234,11 +287,16 @@ echo "  URL: http://localhost:3000"
 echo "  Username: admin"
 echo "  Password: $GRAFANA_PASSWORD"
 echo ""
-echo "📱 Available Dashboards:"
+echo "📱 Available Dashboards (in 'DevOps Workshop' folder):"
 echo "  • Application Overview - Key app metrics and performance"
 echo "  • Infrastructure Monitoring - Kubernetes cluster health"
 echo "  • Log Analysis - Structured log analysis and correlation"
 echo "  • SRE Golden Signals - Latency, Traffic, Errors, Saturation"
+echo ""
+echo "📁 How to find dashboards:"
+echo "  1. Go to http://localhost:3000"
+echo "  2. Look for 'DevOps Workshop' folder on the left"
+echo "  3. Click to expand and see all 4 dashboards"
 echo ""
 echo "🔗 Direct Links:"
 echo "  • Application: http://localhost:8080"

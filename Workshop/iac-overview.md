@@ -240,7 +240,7 @@ In the upcoming tasks, we'll use Terraform to create:
 
 Great! You now understand the core concepts of Infrastructure as Code. Time to put theory into practice.
 
-**Next Step:** [📁 Task 1: Provision Kubernetes cluster](../02-terraform-k8s/README.md)
+**Next Step:** [📁 Task 1: Provision Kubernetes cluster](../01-cluster-setup/README.md)
 
 ---
 
@@ -343,7 +343,7 @@ terraform/
 
 Now that you understand the concepts, let's move to hands-on practice:
 
-**Next Step:** [02-terraform-k8s](../02-terraform-k8s/README.md) - Provision Kubernetes cluster with Terraform
+**Next Step:** [01-cluster-setup](../01-cluster-setup/README.md) - Provision Kubernetes cluster with Terraform
 
 ---
 

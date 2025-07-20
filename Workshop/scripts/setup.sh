@@ -80,7 +80,7 @@ check_prerequisites() {
 setup_cluster() {
     print_status "Setting up Kubernetes cluster..."
     
-    cd 02-terraform-k8s
+    cd ../01-cluster-setup
     
     # Copy terraform vars if not exists
     if [ ! -f terraform.tfvars ]; then
@@ -94,14 +94,45 @@ setup_cluster() {
     terraform apply -auto-approve
     
     print_success "Kubernetes cluster is ready!"
-    cd ..
+    cd ../scripts
+}
+
+# Build and load Docker images
+build_and_load_images() {
+    print_status "Building and loading Docker images..."
+    
+    # Build the sample application image
+    cd ../02-app-deployment/app
+    
+    print_status "Building devops-sample-app:latest..."
+    docker build -t devops-sample-app:latest .
+    
+    if [ $? -eq 0 ]; then
+        print_success "Docker image built successfully"
+        
+        # Load image into Kind cluster
+        print_status "Loading image into Kind cluster..."
+        kind load docker-image devops-sample-app:latest --name devops-workshop
+        
+        if [ $? -eq 0 ]; then
+            print_success "Docker image loaded into Kind cluster"
+        else
+            print_error "Failed to load Docker image into Kind cluster"
+            exit 1
+        fi
+    else
+        print_error "Failed to build Docker image"
+        exit 1
+    fi
+    
+    cd ../../scripts
 }
 
 # Deploy application
 deploy_application() {
     print_status "Deploying sample application..."
     
-    cd 03-app-deployment
+    cd ../02-app-deployment
     
     # Copy terraform vars if not exists
     if [ ! -f terraform.tfvars ]; then
@@ -114,7 +145,7 @@ deploy_application() {
     terraform apply -auto-approve
     
     print_success "Application deployed successfully!"
-    cd ..
+    cd ../scripts
 }
 
 # Setup monitoring stack
@@ -126,7 +157,7 @@ setup_monitoring() {
     helm repo add grafana https://grafana.github.io/helm-charts
     helm repo update
     
-    cd 05-monitoring-stack
+    cd ../03-monitoring
     
     # Copy terraform vars if not exists
     if [ ! -f terraform.tfvars ]; then
@@ -139,7 +170,7 @@ setup_monitoring() {
     terraform apply -auto-approve
     
     print_success "Monitoring stack deployed successfully!"
-    cd ..
+    cd ../scripts
 }
 
 # Wait for pods to be ready
@@ -216,7 +247,7 @@ show_access_info() {
     
     echo ""
     echo "🧹 Cleanup:"
-    echo "  Run: ./scripts/cleanup.sh"
+    echo "  Run: ./cleanup-workshop.sh"
 }
 
 # Main execution
@@ -226,6 +257,7 @@ main() {
     
     check_prerequisites
     setup_cluster
+    build_and_load_images
     deploy_application
     setup_monitoring
     wait_for_pods

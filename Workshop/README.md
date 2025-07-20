@@ -1,124 +1,117 @@
-# DevOps Bootcamp: Infrastructure as Code (IaC) and Observability
+# DevOps Course: Infrastructure as Code & Observability
 
-Welcome to the comprehensive 4-hour workshop on Infrastructure as Code and Observability! This hands-on session will teach you how to provision infrastructure using Terraform and implement a complete observability stack.
+A 4-hour hands-on course that teaches you to build and monitor infrastructure using modern DevOps tools.
 
-## 📖 Workshop Outline
+## 🚀 Before You Start
 
-### 📋 Prerequisites Check
-Before starting, verify your environment is ready:
+### Install Required Tools
+
+You'll need these tools installed on your computer:
+
+**1. Docker Desktop**
+- macOS: Download from [docker.com](https://www.docker.com/products/docker-desktop) or run `brew install --cask docker`
+- Linux: `curl -fsSL https://get.docker.com -o get-docker.sh && sudo sh get-docker.sh`
+- Windows: Download from [docker.com](https://www.docker.com/products/docker-desktop) (ensure WSL2 is enabled)
+
+**2. Terraform**
+- macOS: `brew install terraform`
+- Linux: `sudo apt update && sudo apt install terraform`
+- Windows: Download from [terraform.io](https://www.terraform.io/downloads)
+
+**3. kubectl**
+- macOS: `brew install kubectl`
+- Linux: `curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" && sudo install kubectl /usr/local/bin/`
+- Windows: Download from [kubernetes.io](https://kubernetes.io/docs/tasks/tools/install-kubectl-windows/)
+
+**4. Kind (Kubernetes in Docker)**
+- macOS: `brew install kind`
+- Linux: `curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/`
+- Windows: Download from [kind.sigs.k8s.io](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
+
+### Verify Installation
+
 ```bash
+# Check all tools are installed
 ./scripts/verify-setup.sh
 ```
 
-### 🎯 Learning Path Overview
-This workshop follows a structured path where each module builds upon the previous one:
-
-```
-Prerequisites → IaC Concepts → Terraform + K8s → App Deployment → Monitoring → Dashboards
-```
-
-### 📅 Schedule (4.25 hours + 30min break)
-
-**Part 1: Infrastructure as Code (1.75 hours)**
-- 📚 [IaC Overview and Concepts](01-iac-concepts/README.md) (30 min)
-- 🛠️ [Task 1: Provision Kubernetes cluster](02-terraform-k8s/README.md) (30 min)
-- 🚀 [Task 2: Deploy Application](03-app-deployment/README.md) (35 min)
-
-**Break (30 minutes)**
-
-**Part 2: Observability and Monitoring (2 hours)**
-- 📚 [Observability Concepts Overview](04-observability-concepts/README.md) (30 min)
-- 🛠️ [Task 3: Deploy Monitoring Stack](05-monitoring-stack/README.md) (45 min)
-- 📊 [Task 4: Create Grafana Dashboards](06-grafana-dashboards/README.md) (45 min)
+**Expected output:** All tools should show ✅ green checkmarks.
 
 ---
 
-## ⚡ Quick Start Guide
+## 📅 Course Schedule (4 Hours Total)
 
-### Step 1: Environment Setup
-1. **Prerequisites Check**: Run `./scripts/verify-setup.sh`
-2. **Missing Tools?** See [PREREQUISITES.md](PREREQUISITES.md) for installation guides
-3. **Kind Installation**: See [KIND_INSTALLATION.md](KIND_INSTALLATION.md) if needed
+### **Part 1: Infrastructure as Code (2 hours)**
 
-### Step 2: Workshop Execution
-1. **Start with Theory**: Read [01-iac-concepts/README.md](01-iac-concepts/README.md)
-2. **Follow Hands-on Tasks**: Complete Tasks 1-4 in sequence
-3. **Use Helper Scripts**: Located in `scripts/` directory for setup/cleanup
+**Lecture: Infrastructure as Code Concepts (45 minutes)**
+- What is Infrastructure as Code and why it matters
+- Traditional vs. IaC approaches  
+- Terraform fundamentals
 
-### Step 3: Validation
-Each task includes validation steps to confirm successful completion.
+**Hands-on: Build & Deploy (45 minutes)**
+- Create Kubernetes cluster with Terraform
+- Build and deploy a sample application
+- Understand the deployment process
 
----
+### **Break (30 minutes)**
 
-## 🎯 Learning Objectives
+### **Part 2: Monitoring & Observability (1.5 hours)**
 
-By the end of this workshop, you will be able to:
-- ✅ Understand IaC principles and best practices
-- ✅ Provision Kubernetes clusters using Terraform
-- ✅ Deploy applications using Infrastructure as Code
-- ✅ Implement comprehensive observability with Prometheus, Grafana, and Loki
-- ✅ Create meaningful dashboards and alerts
-- ✅ Add structured logging to applications
+**Lecture: Monitoring Concepts (45 minutes)**  
+- The three pillars of observability
+- Metrics, logs, and traces explained
+- Why monitoring matters for applications
 
----
-
-## � Workshop Structure
-
-```
-Workshop/
-├── 01-iac-concepts/           # 📚 Theory: IaC principles and concepts
-├── 02-terraform-k8s/          # 🛠️ Task 1: Provision K8s cluster
-├── 03-app-deployment/         # 🚀 Task 2: Deploy application
-├── 04-observability-concepts/ # 📚 Theory: Observability principles
-├── 05-monitoring-stack/       # 🛠️ Task 3: Deploy monitoring stack
-├── 06-grafana-dashboards/     # 📊 Task 4: Create dashboards
-├── scripts/                   # 🔧 Helper scripts (setup, cleanup, validation)
-├── PREREQUISITES.md           # 📋 Installation requirements
-├── CONTRIBUTING.md            # 🤝 Contribution guidelines
-└── KIND_INSTALLATION.md       # 🐳 Kind-specific setup
-```
+**Hands-on: Monitoring Stack (45 minutes)**
+- Deploy Prometheus, Grafana, and Loki
+- Create dashboards to visualize your application
+- Set up alerts and understand system health
 
 ---
 
-## �️ Prerequisites
+## 🛠️ Course Tasks
 
-### Required Knowledge
-- DevOps Basics
-- Linux and CI/CD fundamentals
-- Container concepts
-- Kubernetes basics
+Complete these tasks in order:
 
-### Required Software
-- ✅ Docker installed and running
-- ✅ kubectl installed
-- ✅ Kind installed (Kubernetes in Docker)
-- ✅ Terraform installed (>= 1.0)
-- ✅ Git basics
+### **Task 1: Create Kubernetes Cluster**
+**What you'll do:** Use Terraform to create a local Kubernetes cluster  
+**Time:** 25 minutes  
+**Location:** `01-cluster-setup/`
 
-**Need help installing?** See [PREREQUISITES.md](PREREQUISITES.md) for detailed installation guides.
+### **Task 2: Deploy Application** 
+**What you'll do:** Build a Docker image and deploy it to Kubernetes  
+**Time:** 25 minutes  
+**Location:** `02-app-deployment/`
 
----
+### **Task 3: Set up Monitoring**
+**What you'll do:** Deploy monitoring tools to track your application  
+**Time:** 25 minutes  
+**Location:** `03-monitoring/`
 
-## 📚 Further Reading & Extensions
-
-### Core Documentation
-- [Terraform Documentation](https://www.terraform.io/docs) - Infrastructure as Code
-- [Kubernetes Documentation](https://kubernetes.io/docs) - Container orchestration
-- [Prometheus Documentation](https://prometheus.io/docs) - Metrics collection
-- [Grafana Documentation](https://grafana.com/docs) - Observability dashboards
-
-### Advanced Topics (Not Covered in Workshop)
-- Multi-cloud Terraform deployments
-- GitOps with ArgoCD/Flux
-- Advanced Kubernetes security
-- Service mesh observability
-- MLOps monitoring patterns
-
-### Community & Support
-- [Workshop Issues](https://github.com/your-repo/issues) - Report problems
-- [Discussions](https://github.com/your-repo/discussions) - Ask questions
-- [Contributing Guide](CONTRIBUTING.md) - Help improve the workshop
+### **Task 4: Create Dashboards**
+**What you'll do:** Build visual dashboards to monitor system health  
+**Time:** 20 minutes  
+**Location:** `04-dashboards/`
 
 ---
 
-**Ready to start? Begin with [01-iac-concepts/README.md](01-iac-concepts/README.md)** 🚀
+## 🎯 What You'll Learn
+
+By the end of this course, you'll understand:
+
+- **Infrastructure as Code**: How to manage infrastructure using code instead of manual processes
+- **Container Orchestration**: How Kubernetes manages your applications
+- **Application Deployment**: How to build and deploy applications reliably  
+- **System Monitoring**: How to observe and troubleshoot your applications
+- **DevOps Workflow**: The complete cycle from code to production monitoring
+
+---
+
+## 🚀 Ready to Start?
+
+1. **Verify your tools** are installed: `./scripts/verify-setup.sh`
+2. **Start with Task 1**: Open `01-cluster-setup/README.md`
+3. **Follow each task in order** - they build on each other
+4. **Ask questions** - learning DevOps is a journey!
+
+**Let's build something awesome! 🎉**

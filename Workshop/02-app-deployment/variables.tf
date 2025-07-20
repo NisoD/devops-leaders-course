@@ -1,7 +1,7 @@
 variable "kubeconfig_path" {
   description = "Path to the kubeconfig file"
   type        = string
-  default     = "../02-terraform-k8s/kubeconfig"
+  default     = "../01-cluster-setup/kubeconfig"
 }
 
 variable "app_name" {

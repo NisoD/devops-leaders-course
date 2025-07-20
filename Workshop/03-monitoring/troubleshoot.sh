@@ -6,7 +6,7 @@ echo "=========================================="
 
 # Check if we're in the right directory
 if [ ! -f "main.tf" ]; then
-    echo "❌ Please run this script from the 05-monitoring-stack directory"
+    echo "❌ Please run this script from the 03-monitoring directory"
     exit 1
 fi
 

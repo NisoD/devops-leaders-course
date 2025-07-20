@@ -151,7 +151,7 @@ else
     print_error "Kind cluster 'devops-workshop' not found"
     print_status "Creating Kind cluster..."
     
-    cd ../02-terraform-k8s
+    cd ../01-cluster-setup
     terraform init -input=false
     terraform plan -input=false
     terraform apply -auto-approve -input=false
@@ -189,7 +189,7 @@ echo ""
 echo "📱 Step 3: Application Deployment Validation"
 echo "-------------------------------------------"
 
-cd ../03-app-deployment
+cd ../02-app-deployment
 
 # Check if Terraform is initialized
 if [ ! -d ".terraform" ]; then
@@ -251,7 +251,7 @@ echo ""
 echo "📊 Step 4: Monitoring Stack Validation"
 echo "-------------------------------------"
 
-cd ../05-monitoring-stack
+cd ../03-monitoring
 
 # Check if Terraform is initialized
 if [ ! -d ".terraform" ]; then

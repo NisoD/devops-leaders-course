@@ -33,7 +33,7 @@ print_error() {
 
 # Check if we're in the right directory
 if [ ! -f "main.tf" ]; then
-    print_error "Please run this script from the 05-monitoring-stack directory"
+    print_error "Please run this script from the 03-monitoring directory"
     exit 1
 fi
 

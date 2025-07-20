@@ -296,7 +296,7 @@ In the upcoming monitoring tasks, we'll implement:
 
 Now that you understand observability principles, let's build a real monitoring stack!
 
-**Next Step:** [📁 Task 3: Deploy Monitoring Stack](../05-monitoring-stack/README.md)
+**Next Step:** [📁 Task 3: Deploy Monitoring Stack](../03-monitoring/README.md)
 
 ---
 
@@ -480,7 +480,7 @@ In our workshop, we'll implement:
 
 Now that you understand observability concepts, let's implement them!
 
-**Next Task:** [05-monitoring-stack](../05-monitoring-stack/README.md) - Deploy the monitoring infrastructure
+**Next Task:** [03-monitoring](../03-monitoring/README.md) - Deploy the monitoring infrastructure
 
 ---
 
